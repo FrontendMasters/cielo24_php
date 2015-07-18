@@ -2,16 +2,14 @@
 
 namespace Cielo;
 
-use \Exception as Exception;
-
 /**
- * Cielo API Request class. Requires cURL
+ * Cielo API Request static class. Requires cURL
  *
  */
 class Request {
 
   /**
-   * A list of available API actions
+   * A static list of available API actions
    * @var array
    */
   private static $actions = [
@@ -53,10 +51,10 @@ class Request {
   
   
   /**
-   * Call the Cielo API $method based on $options
+   * Call the Cielo API based on $options
    * 
+   * @see Cielo\API::_setDefaults for example options
    * @param array $options
-   *
    * @return stdClass API response data
    */
   public static function call($options = array()){
@@ -79,8 +77,10 @@ class Request {
     if(isset($options['data'])){
       $curlOptions[CURLOPT_POST] = true;
       $curlOptions[CURLOPT_POSTFIELDS] = $options['data'];
-      // set a default content-type if one hasn't been set
-      $options['headers'] = $options['headers'] + array("Content-Type: " . $options['contentType']);
+      if (!$options['binary']){
+        // set a default content-type if one hasn't been set
+        $options['headers'] = $options['headers'] + array("Content-Type: " . $options['contentType']);
+      }
     }
 
     // set optional http headers
@@ -111,6 +111,7 @@ class Request {
 
   /**
    * Set the error property on the response object, if there is an error
+   * 
    * @param  array response object
    * @return array response object
    */
@@ -125,7 +126,10 @@ class Request {
   }
   
   /**
-   * @param  array of options
+   * Build an API request url from an array of options
+   * all query params are urlencoded.
+   * 
+   * @param  array o Options
    * @return string the request url
    */
   public static function buildUrl($o=array()){

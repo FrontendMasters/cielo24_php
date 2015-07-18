@@ -2,9 +2,6 @@
 
 namespace Cielo;
 
-use \Exception as Exception;
-
-
 /**
  * Client library for Cielo24 API
  * @see  http://cielo24.readthedocs.org/en/latest/index.html
@@ -35,7 +32,11 @@ class API {
   //  @var null|object the error message of the last API call or null
   public $lastError = null;
 
-
+  /**
+   * Create an instance of the Cielo API
+   * 
+   * @param array o options to instantiate the lass with
+   */
   public function __construct($o=array()){
     // initialize stuff
     if (isset($o['user']))    $this->user = $o['user'];
@@ -46,6 +47,8 @@ class API {
   }
 
   /**
+   * Get the API base url to use for requests
+   * 
    * @return string the base url to use for requests
    */
   public function getBaseUrl(){
@@ -57,6 +60,8 @@ class API {
   }
 
   /**
+   * Get the API token to use for requests
+   * 
    * @return string the token to use for requests
    */
   public function getToken(){
@@ -69,7 +74,8 @@ class API {
 
   /**
    * Merge $params with $options['query'] and ensure that $options['query']
-   * is an array.
+   * is an array. Also, set the api_token if it isn't already set
+   * 
    * @param  array $options
    * @param  array $params
    * @return array $options
@@ -79,7 +85,7 @@ class API {
       $options['query'] = array();
     }
     if (!is_array($options['query'])){
-      throw new Exception('The query must be an array');
+      throw new \Exception('The query must be an array');
     }
     if (!isset($params['api_token'])){
       $params['api_token'] = $this->getToken();
@@ -89,9 +95,12 @@ class API {
   }
 
   /**
-   * @param array options
+   * Set the default options, merge with supplied options
+   * 
+   * @param array options Optional User supplied options
+   * @return  array options The default options
    */
-  public function _setDefaults($options){
+  public function _setDefaults($options=array()){
     $defaults = array(
       'method' => null,
       'url' => $this->getBaseUrl(),
@@ -99,15 +108,23 @@ class API {
       'version' => $this->version,
       'query' => array(),
       'data' => null,
+      'binary' => null,
       'contentType' => 'text/plain',
       'headers' => array(),
       'cURL' => array()
     );
     $options += $defaults;
-
     return $options;
   }
 
+  /**
+   * A wrapper around Cielo\Request::call, if there are any errors
+   * they will be set to $this->lastError
+   * 
+   * @param  string method The API url to call
+   * @param  array options Options to pass to Cielo\Request::call
+   * @return stdClass API results
+   */
   private function _call($method, $options){
     $options['method'] = $method;
     $options = $this->_setDefaults($options);
@@ -117,14 +134,23 @@ class API {
     if ($results['error'] != null){
       $this->lastError = $results['error'];
     }
-
     return $results['json'];
   }
 
-  /**
-   * Access Control
+  /** ------------------------------------------------------------
+   * Cielo API :: Access Control
    */
 
+  /**
+   * Login with a username and either a password or a securekey.
+   * sets $this->token to the returned ApiToken, if successful.
+   *
+   * Subsequent api calls will use the returned token.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function login($params=array(), $options=array()){
     if (!isset($params['username'])){
       $params['username'] = $this->user;
@@ -138,6 +164,14 @@ class API {
     return $result;
   }
   
+  /**
+   * Logout, invalidates the current session and token.
+   * If there were no errors $this->token is set to null.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function logout($params=array(), $options=array()){
     $options = $this->_merge($options, $params);
     $result = $this->_call('account/logout', $options);
@@ -148,6 +182,13 @@ class API {
     return $result;
   }
 
+  /**
+   * Creates a long term use API key to use in lieu of a password.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function generate_key($params=array(), $options=array()){
     if (!isset($params['account_id'])){
       $params['account_id'] = $this->user;
@@ -156,9 +197,16 @@ class API {
     return $this->_call('account/generate_api_key', $options);
   }
   
+  /**
+   * Update your password. required params: 'new_password'
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function update_password($params=array(), $options=array()){
     if (!isset($params['new_password'])){
-      throw new Exception('new_password is required');
+      throw new \Exception('new_password is required');
     }
     // merge params with required default params for the post body
     $body = $params + array(
@@ -172,6 +220,13 @@ class API {
     return $this->_call('account/update_password', $options);
   }
 
+  /**
+   * Invalidates an API Key. It will no longer work as a login credential
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function remove_api_key($params=array(), $options=array()){
     if (!isset($params['secure_key'])){
       $params['secure_key'] = $this->key;
@@ -184,46 +239,156 @@ class API {
 
 
 
-  /**
-   * Job Control
+  /** ------------------------------------------------------------
+   * Cielo API :: Job Control
    */
 
+  /**
+   * Create a new job. A job is a container into which you can upload 
+   * media and request that transcription be performed. Creating a job 
+   * is prerequisite for virtually all other methods.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function job_create($params=array(), $options=array()){
     $options = $this->_merge($options, $params);
     return $this->_call('job/new', $options);
   }
 
+  /**
+   * Authorize an existing job. If you have enabled the 
+   * "customer authorization" feature in the settings for your
+   * account, this will authorize a job.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function job_authorize($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     $options = $this->_merge($options, $params);
     return $this->_call('job/authorize', $options);
   }
 
+  /**
+   * Delete a job. Jobs can only be deleted before they have 
+   * started processing, when their status is “Authorizing” or “Pending”.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function job_delete($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     $options = $this->_merge($options, $params);
     return $this->_call('job/del', $options);
   }
 
+  /**
+   * Get a list of all tasks associated with an existing job.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function job_info($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     $options = $this->_merge($options, $params);
     return $this->_call('job/info', $options);
   }
 
+  /**
+   * Get a list of all ACTIVE jobs associated with the user account
+   * that generated the given API Token. 
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
   public function job_list($params=array(), $options=array()){
     $options = $this->_merge($options, $params);
     return $this->_call('job/list', $options);
   }
 
   /**
-   * Perform transcription for a specific Job
+   * Add a piece of media to an existing job. Use 'media_url' to
+   * specify a media, or 'media_path' for a local file upload.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
+  public function add_media($params=array(), $options=array()){
+    if (!isset($params['job_id'])){
+      throw new \Exception('job_id is required');
+    }
+    // add media file from file (binary file upload via POST)
+    if (!isset($params['media_url'])){
+      if (!isset($params['media_path'])){
+        throw new \Exception('A media_url or media_path is required');
+      }
+      $file = realpath( $params['media_path'] );
+      if (is_file($file) == false){
+        throw new \Exception('unable to read media_path');
+      }
+      unset($params['media_path']);
+      $options['binary'] = true;
+      $options['data'] = array('file' => '@' . $file);
+      $options['headers'] = array(
+        'Content-Length: ' . filesize($file)
+      );
+      // php caches calls to is_file, filesize, etc, like a boss?
+      clearstatcache();
+    }
+    $options = $this->_merge($options, $params);
+    return $this->_call('job/add_media', $options);
+  }
+
+  /**
+   * Add a piece of media to an existing job via a non-direct URL
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
+  public function add_media_url($params=array(), $options=array()){
+    if (!isset($params['job_id'])){
+      throw new \Exception('job_id is required');
+    }
+    if (!isset($params['media_url'])){
+      throw new \Exception('media_url is required');
+    }
+    $options = $this->_merge($options, $params);
+    return $this->_call('job/add_media_url', $options);
+  }
+
+  /**
+   * Get a URL to the media for an existing job. If the media was 
+   * directly uploaded to the job, no URL will be returned.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
+  public function get_media($params=array(), $options=array()){
+    if (!isset($params['job_id'])){
+      throw new \Exception('job_id is required');
+    }
+    $options = $this->_merge($options, $params);
+    return $this->_call('job/media', $options);
+  }
+
+  /**
+   * Perform transcription for a specific Job, you must add 
+   * media to the Job before you can perform transcription.
    * 
    * @param  array params Cielo24 API parameters
    * @param  array options Options to pass to Request::call
@@ -231,7 +396,7 @@ class API {
    */
   public function perform_transcription($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     // set default values
     $params += array(
@@ -244,7 +409,8 @@ class API {
   }
 
   /**
-   * Get the transcript for a specific Job
+   * Get the transcript for a specific Job, the job must have
+   * completed transcription before a transcript can be downloaded.
    * 
    * @param  array params Cielo24 API parameters
    * @param  array options Options to pass to Request::call
@@ -252,14 +418,15 @@ class API {
    */
   public function get_transcript($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     $options = $this->_merge($options, $params);
     return $this->_call('job/get_transcript', $options);
   }
 
   /**
-   * Get the caption for a specific Job
+   * Get the caption for a specific Job, the job must have
+   * completed transcription before a transcript can be downloaded.
    * 
    * @param  array params Cielo24 API parameters
    * @param  array options Options to pass to Request::call
@@ -267,13 +434,45 @@ class API {
    */
   public function get_caption($params=array(), $options=array()){
     if (!isset($params['job_id'])){
-      throw new Exception('job_id is required');
+      throw new \Exception('job_id is required');
     }
     // set default values
     $params += array('caption_format' => 'SRT');
 
     $options = $this->_merge($options, $params);
     return $this->_call('job/get_caption', $options);
+  }
+
+  /**
+   * Get the ElementList for a specific Job, the job must have
+   * completed transcription before a transcript can be downloaded.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
+  public function get_elementlist($params=array(), $options=array()){
+    if (!isset($params['job_id'])){
+      throw new \Exception('job_id is required');
+    }
+    $options = $this->_merge($options, $params);
+    return $this->_call('job/get_elementlist', $options);
+  }
+
+  /**
+   * Get the list of ElementLists for a specific Job, the job must have
+   * completed transcription before a transcript can be downloaded.
+   * 
+   * @param  array params Cielo24 API parameters
+   * @param  array options Options to pass to Request::call
+   * @return stdClass API results
+   */
+  public function list_elementlists($params=array(), $options=array()){
+    if (!isset($params['job_id'])){
+      throw new \Exception('job_id is required');
+    }
+    $options = $this->_merge($options, $params);
+    return $this->_call('job/list_elementlists', $options);
   }
 
 

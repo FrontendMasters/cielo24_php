@@ -144,9 +144,25 @@ class CieloTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue(isset($result->ActiveJobs));
   }
 
+  public function testUpload(){
+    $result = self::$Cielo->job_list();
+    $this->assertNull( self::$Cielo->lastError );
+    $this->assertTrue(is_object($result));
+    $this->assertTrue(isset($result->ActiveJobs));
+  }
+
+/*
   public function testPerformTranscription(){
     $job_id = self::_getJob();
-    $result = self::$Cielo->perform_transcription(array('job_id' => $job_id));
+    $options = array(
+      'job_id' => $job_id,
+      'transcription_fidelity' => 'MECHANICAL',
+      'priority' => 'ECONOMY'
+    );
+    $result = self::$Cielo->perform_transcription($options);
+
+    // @@todo - must add media before you can perform transcription!
+
     self::_debug('test perform_transcription');
     self::_debug($result);
     $this->assertNull( self::$Cielo->lastError );
@@ -172,7 +188,7 @@ class CieloTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue(isset($result->Tasks[0]->TaskId));
   }
 
-
+*/
 
 
 
