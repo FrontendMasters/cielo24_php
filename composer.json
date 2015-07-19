@@ -1,0 +1,29 @@
+{
+  "name": "cielo/cielo",
+  "type": "library",
+  "description": "A PHP client library for the Cielo24 API",
+  "keywords": [
+    "cielo", "cielo24", "transcription",
+    "transcribe", "transcribing", "video",
+    "subtitles", "captions", "api"
+  ],
+  "homepage": "https://github.com/FrontendMasters/cielo24_php",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Derek Anderson",
+      "homepage": "http://mediaupstream.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.3",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0"
+  },
+  "autoload": {
+    "psr-4": { "Cielo\\" : "lib/" }
+  }
+}

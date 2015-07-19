@@ -6,13 +6,15 @@ A simple PHP library to access the [cielo24.com API](http://cielo24.readthedocs.
 
 PHP 5.3.3 and later.
 
+## Installation
+
+Install the package `cielo/cielo` via composer, or download the source and `require '/path/to/cielo_php/init.php';`
+
 ## Sample Usage
 
 ```php
 <?php
   
-  require_once('/path/to/cielo_php/init.php');
-
   $cielo = new Cielo::API(array(
     'user' => 'test_user',
     'key'  => 'ea9fc1ce98f5acf74a4f93de2bcfcfa5'

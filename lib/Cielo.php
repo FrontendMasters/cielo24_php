@@ -35,7 +35,7 @@ class API {
   /**
    * Create an instance of the Cielo API
    * 
-   * @param array o options to instantiate the lass with
+   * @param array o options to instantiate the class with
    */
   public function __construct($o=array()){
     // initialize stuff
