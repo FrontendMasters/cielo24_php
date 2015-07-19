@@ -25,7 +25,7 @@ Alternatively, you can download the source and simply require the init script
 
 ```php
 <?php
-  require '/path/to/cielo_php/init.php';
+  require '/path/to/cielo24_php/init.php';
 ```
 
 
@@ -75,3 +75,16 @@ to run the tests make sure you have [PHPUnit](https://phpunit.de/getting-started
 rename `tests/_config.default.php` to `tests/_config.php` and add your sandbox API credentials.
 
 then execute `phpunit` to run all the tests.
+
+
+To run tests first install [PHPUnit](https://phpunit.de/getting-started.html), then rename the test config file and edit it adding your sandbox API credentials from Cielo24.
+
+```bash
+mv tests/_config.default.php tests/_config.php
+```
+
+Now you can run the tests with:
+
+```bash
+phpunit
+```
