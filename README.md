@@ -8,12 +8,33 @@ PHP 5.3.3 and later.
 
 ## Installation
 
-Install the package `cielo24/cielo24_php` via composer, or download the source and `require '/path/to/cielo_php/init.php';`
+Install with [Composer](https://getcomposer.org)
+
+```bash
+composer require cielo24/cielo24_php
+```
+
+then in your php application you can require the autoloader
+
+```php
+<?php
+  require 'vendor/autoload.php';
+```
+
+Alternatively, you can download the source and simply require the init script
+
+```php
+<?php
+  require '/path/to/cielo_php/init.php';
+```
+
 
 ## Sample Usage
 
 ```php
 <?php
+
+  require 'vendor/autoload.php';
   
   $cielo = new Cielo\Api(array(
     'user' => 'test_user',
