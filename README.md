@@ -8,7 +8,7 @@ PHP 5.3.3 and later.
 
 ## Installation
 
-Install the package `cielo/cielo` via composer, or download the source and `require '/path/to/cielo_php/init.php';`
+Install the package `cielo24/cielo24_php` via composer, or download the source and `require '/path/to/cielo_php/init.php';`
 
 ## Sample Usage
 
