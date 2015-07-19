@@ -1,5 +1,5 @@
 <?php
 
-require(dirname(__FILE__) . '/lib/Cielo.php');
-require(dirname(__FILE__) . '/lib/CieloRequest.php');
+require(dirname(__FILE__) . '/lib/Api.php');
+require(dirname(__FILE__) . '/lib/Request.php');
 

@@ -17,8 +17,8 @@ class CieloTest extends PHPUnit_Framework_TestCase {
   public static $jobs = array();
 
   /**
-   * holds the Cielo API object
-   * @var Cielo::API
+   * holds the Cielo Api instance
+   * @var Cielo\Api
    */
   public static $Cielo = null;
 
@@ -47,7 +47,7 @@ class CieloTest extends PHPUnit_Framework_TestCase {
    */
   public static function setUpBeforeClass(){
     
-    self::$Cielo = new Cielo\API(array(
+    self::$Cielo = new Cielo\Api(array(
       'test' => true,
       'user' => Config::$api_username,
       'key'  => Config::$api_key

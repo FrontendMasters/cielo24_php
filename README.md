@@ -15,7 +15,7 @@ Install the package `cielo24/cielo24_php` via composer, or download the source a
 ```php
 <?php
   
-  $cielo = new Cielo::API(array(
+  $cielo = new Cielo\Api(array(
     'user' => 'test_user',
     'key'  => 'ea9fc1ce98f5acf74a4f93de2bcfcfa5'
   ));

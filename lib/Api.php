@@ -6,7 +6,7 @@ namespace Cielo;
  * Client library for Cielo24 API
  * @see  http://cielo24.readthedocs.org/en/latest/index.html
  */
-class API {
+class Api {
 
   // @var string set to true to enable testing mode (uses the sandbox api)
   public $test = false;
