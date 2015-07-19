@@ -70,13 +70,6 @@ Alternatively, you can download the source and simply require the init script
 
 ## Tests
 
-to run the tests make sure you have [PHPUnit](https://phpunit.de/getting-started.html) installed.
-
-rename `tests/_config.default.php` to `tests/_config.php` and add your sandbox API credentials.
-
-then execute `phpunit` to run all the tests.
-
-
 To run tests first install [PHPUnit](https://phpunit.de/getting-started.html), then rename the test config file and edit it adding your sandbox API credentials from Cielo24.
 
 ```bash
@@ -88,3 +81,8 @@ Now you can run the tests with:
 ```bash
 phpunit
 ```
+
+## License
+
+The MIT License
+
