@@ -77,9 +77,17 @@ class Request {
     if(isset($options['data'])){
       $curlOptions[CURLOPT_POST] = true;
       $curlOptions[CURLOPT_POSTFIELDS] = $options['data'];
+      $curlOptions[CURLOPT_UPLOAD] = 1;
       if (!$options['binary']){
         // set a default content-type if one hasn't been set
         $options['headers'] = $options['headers'] + array("Content-Type: " . $options['contentType']);
+      } else {
+        // Send file binary data in a custom POST request
+        $file = $options['data']['file'];
+        $curlOptions[CURLOPT_HEADER] = false;
+        $curlOptions[CURLOPT_INFILE] = fopen($file, "r");
+        $curlOptions[CURLOPT_INFILESIZE] = filesize($file);
+        $curlOptions[CURLOPT_CUSTOMREQUEST] = "POST";
       }
     }
 

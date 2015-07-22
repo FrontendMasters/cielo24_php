@@ -129,12 +129,18 @@ class Api {
     $options['method'] = $method;
     $options = $this->_setDefaults($options);
     $results = \Cielo\Request::call($options);
-
     $this->lastError = null;
     if ($results['error'] != null){
       $this->lastError = $results['error'];
     }
-    return $results['json'];
+
+    // return the JSON or raw response body
+    $result = $results['json'];
+    if (isset($options['raw']) && $options['raw'] == true){
+      $result = $results['raw'];
+    }
+
+    return $result;
   }
 
   /** ------------------------------------------------------------
@@ -335,20 +341,23 @@ class Api {
       if (!isset($params['media_path'])){
         throw new \Exception('A media_url or media_path is required');
       }
+      // get the realpath to the file to be uploaded
       $file = realpath( $params['media_path'] );
+
       if (is_file($file) == false){
         throw new \Exception('unable to read media_path');
       }
-      unset($params['media_path']);
       $options['binary'] = true;
-      $options['data'] = array('file' => '@' . $file);
+      $options['data'] = array('file' => $file);
       $options['headers'] = array(
         'Content-Length: ' . filesize($file)
       );
       // php caches calls to is_file, filesize, etc, like a boss?
       clearstatcache();
+      unset($params['media_path']);
     }
     $options = $this->_merge($options, $params);
+
     return $this->_call('job/add_media', $options);
   }
 
@@ -414,12 +423,13 @@ class Api {
    * 
    * @param  array params Cielo24 API parameters
    * @param  array options Options to pass to Request::call
-   * @return stdClass API results
+   * @return string transcript
    */
   public function get_transcript($params=array(), $options=array()){
     if (!isset($params['job_id'])){
       throw new \Exception('job_id is required');
     }
+    $options['raw'] = true;
     $options = $this->_merge($options, $params);
     return $this->_call('job/get_transcript', $options);
   }
@@ -430,7 +440,7 @@ class Api {
    * 
    * @param  array params Cielo24 API parameters
    * @param  array options Options to pass to Request::call
-   * @return stdClass API results
+   * @return stdClass|string API results
    */
   public function get_caption($params=array(), $options=array()){
     if (!isset($params['job_id'])){
@@ -438,6 +448,12 @@ class Api {
     }
     // set default values
     $params += array('caption_format' => 'SRT');
+
+    // if build_url isn't set or is false, return raw results instead
+    // of json
+    if (!isset($params['build_url']) || $params['build_url'] == false){
+      $options['raw'] = true;
+    }
 
     $options = $this->_merge($options, $params);
     return $this->_call('job/get_caption', $options);
