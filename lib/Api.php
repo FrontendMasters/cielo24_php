@@ -32,6 +32,8 @@ class Api {
   //  @var null|object the error message of the last API call or null
   public $lastError = null;
 
+  public $lastResponse = null;
+
   /**
    * Create an instance of the Cielo API
    * 
@@ -129,6 +131,7 @@ class Api {
     $options['method'] = $method;
     $options = $this->_setDefaults($options);
     $results = \Cielo\Request::call($options);
+    $this->lastResponse = $results;
     $this->lastError = null;
     if ($results['error'] != null){
       $this->lastError = $results['error'];
