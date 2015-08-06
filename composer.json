@@ -1,7 +1,7 @@
 {
-  "name": "cielo24/cielo24_php",
+  "name": "mediaupstream/cielo24_php",
   "type": "library",
-  "description": "A PHP client library for the Cielo24 API",
+  "description": "A PHP client library for the Cielo24 API (Unofficial)",
   "keywords": [
     "cielo", "cielo24", "transcription",
     "transcribe", "transcribing", "video",

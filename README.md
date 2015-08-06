@@ -11,7 +11,7 @@ PHP 5.3.3 and later.
 Install with [Composer](https://getcomposer.org)
 
 ```bash
-composer require cielo24/cielo24_php
+composer require mediaupstream/cielo24_php
 ```
 
 then in your php application you can require the autoloader
