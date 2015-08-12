@@ -1,6 +1,8 @@
-# Cielo24 PHP Client Library
+# Cielo24 PHP Client Library (Unofficial)
 
 A simple PHP library to access the [cielo24.com API](http://cielo24.readthedocs.org)
+
+You might want to consider using the official [php library](https://github.com/Cielo24/cielo24-php) which requires PHP >= 5.5.0.
 
 ## Requirements
 
